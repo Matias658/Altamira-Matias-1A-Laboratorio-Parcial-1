@@ -271,7 +271,7 @@ def realizar_compras(lista:list, key:str, key2:str, key3:str, key4:str, key5:str
                     
             crear_recibo(productos, key3, "Cantidad", key5, precio_final)
     except Exception:
-        print("Compra cancelada")
+        print("Compra terminada")
 
     return productos
 
@@ -290,9 +290,9 @@ def crear_recibo(producto:list, key:str, key2:str, key3:str, precio:float):
     with open("Recibo.txt", "w", encoding="utf8") as file:
         file.write("----RECIBO DE COMPRA---\n")
         for item in producto:
-            file.write(f"Producto/s: {item[key]}\nCantidad: {item[key2]}\nPrecio: ${(item[key3])}\n")
+            file.write(f"Producto/s: {item[key]}\nCantidad: {item[key2]}\nPrecio: ${item[key3]:.2f}\n")
             file.write("---------------------------------------\n")
-        file.write(f"PRECIO FINAL: {precio}")
+        file.write(f"PRECIO FINAL: {[precio]:.2f}")
     return file
 #--------------------------------------------------------------------------------------------------------------------------------------
 #7. Guardar en formato JSON: Genera un archivo JSON con todos los productos cuyo nombre contiene la palabra "Alimento".
@@ -325,7 +325,7 @@ def leer_json(path:str):
 #9. Actualizar precios: Aplica un aumento del 8.4% a todos los productos, utilizando la función map. Los productos actualizados se
 # guardan en el archivo "Insumos.csv".
 
-def actualizar_precios(lista:list, key:str, key2:str, key3:str, key4:str, key5:str, actualizar:float):
+def actualizar_precios(path:str, lista:list, key:str, key2:str, key3:str, key4:str, key5:str, actualizar:float):
     """Actualiza los precios ingresados por el valor a actualizar ingresado
 
     Args:
@@ -336,12 +336,12 @@ def actualizar_precios(lista:list, key:str, key2:str, key3:str, key4:str, key5:s
         key4 (str): "precio"
         key5 (str): "caracteristicas"
     """
-    precios_actualizados = list(map(lambda item: {"ID":item[key], "nombre":item[key2], "marca":item[key3], "precio":(item[key4] * actualizar / 100) + (item[key4]), "caracteristicas":item[key5]}, lista))
+    precios_actualizados = list(map(lambda item: {key:item[key], key2:item[key2], key3:item[key3], key4:(item[key4] * actualizar / 100) + (item[key4]), key5:item[key5]}, lista))
 
-    with open ("Parcial 1\\insumos.csv", 'w', encoding="utf8") as file:
+    with open (path, 'w', encoding="utf8") as file:
         file.write("ID,NOMBRE,MARCA,PRECIO,CARACTERISTICAS\n")
         for item in precios_actualizados:
-            lista_actualizada = f"{item['ID']},{item['nombre']},{item['marca']},{item['precio']:.2f},{item['caracteristicas']}\n"
+            lista_actualizada = f"{item[key]},{item[key2]},{item[key3]},{item[key4]:.2f},{item[key5]}\n"
             file.write(lista_actualizada)
         file.write("\n")
 
@@ -372,7 +372,7 @@ def menu():
             return opcion
 
 def elegir_opcion(opcion):
-    path = "Parcial 1\\insumos.csv"
+    path = "insumos.csv"
     lista_insumos = crear_lista_dict(path, "ID", "nombre", "marca", "precio", "caracteristicas")
     match opcion:
         case 1:
@@ -399,14 +399,14 @@ def elegir_opcion(opcion):
         case 6:
             realizar_compras(lista_insumos,"marca", "ID", "Producto", "nombre", "precio")
         case 7:
-            lista_especifica = buscar_insumo(lista_insumos, "nombre", "Alimento")
+            lista_especifica = buscar_insumo(lista_insumos, "nombre", "alimento")
             return formato_JSON(lista_especifica)
         case 8:
-            path = "D:\\Desktop\\Programación\\1A\\Primer cuatri\\Programación y Laboratorio\\Alimentos.json"
+            path = "Alimentos.json"
             insumos = leer_json(path)
             mostrar_lista(insumos)
         case 9:
-            lista_actualizada = actualizar_precios(lista_insumos, "ID", "nombre", "marca", "precio", "caracteristicas", 8.4)
+            lista_actualizada = actualizar_precios(path, lista_insumos, "ID", "nombre", "marca", "precio", "caracteristicas", 8.4)
             return lista_actualizada
         case 10:
             salir = input("Seguro que desea salir? s/n: ")
